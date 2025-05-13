@@ -1,5 +1,3 @@
-import vuetify from './plugins/vuetify' // Importe o plugin que vamos criar
-
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },

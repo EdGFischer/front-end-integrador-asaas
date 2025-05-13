@@ -7,11 +7,11 @@
             <v-toolbar-title class="text-h5">Cadastre sua Imobiliária</v-toolbar-title>
           </v-toolbar>
           <v-card-text>
-            <v-form @submit.prevent="cadastrarImobiliaria">
+            <v-form ref="formRef" @submit.prevent="cadastrarImobiliaria">
               <v-text-field
                 v-model="nomeImobiliaria"
                 label="Nome da Imobiliária"
-                required
+                :rules="[rules.required]"
               ></v-text-field>
 
               <v-row>
@@ -19,16 +19,16 @@
                   <v-text-field
                     v-model="cnpj"
                     label="CNPJ"
-                    v-mask="'##.###.###/####-##'"
-                    required
+                    :rules="[rules.required, rules.cnpj]"
+                    v-mask="'cpfcnpj'"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6">
                   <v-text-field
                     v-model="telefone"
                     label="Telefone"
-                    v-mask="'(##) #####-####'"
-                    required
+                    :rules="[rules.required, rules.telefone]"
+                    v-mask="'(00) 00000-0000'"
                   ></v-text-field>
                 </v-col>
               </v-row>
@@ -36,14 +36,14 @@
               <v-text-field
                 v-model="endereco"
                 label="Endereço"
-                required
+                :rules="[rules.required]"
               ></v-text-field>
 
               <v-text-field
                 v-model="email"
                 label="Email"
                 type="email"
-                required
+                :rules="[rules.required, rules.email]"
               ></v-text-field>
 
               <v-btn
@@ -63,9 +63,12 @@
 </template>
 
 
+
+
 <script setup>
 import { ref } from 'vue'
 import { createClient } from '@/api/create-client'
+import { useRouter } from 'vue-router'
 
 const nomeImobiliaria = ref('')
 const cnpj = ref('')
@@ -73,9 +76,20 @@ const endereco = ref('')
 const telefone = ref('')
 const email = ref('')
 
+const formRef = ref(null)
 const router = useRouter()
 
+const rules = {
+  required: v => !!v || 'Campo obrigatório',
+  email: v => /.+@.+\..+/.test(v) || 'Email inválido',
+  cnpj: v => /^\d{2}\.?\d{3}\.?\d{3}\/?\d{4}-?\d{2}$/.test(v) || 'CNPJ inválido',
+  telefone: v => /^\(?\d{2}\)?[\s-]?\d{5}-?\d{4}$/.test(v) || 'Telefone inválido'
+}
+
 const cadastrarImobiliaria = async () => {
+  const { valid } = await formRef.value.validate()
+  if (!valid) return
+
   try {
     await createClient({
       name: nomeImobiliaria.value,
