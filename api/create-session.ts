@@ -1,4 +1,4 @@
-export async function loginApi(email, password) {
+export async function loginApi(email: string, password: string) {
   const response = await fetch('http://localhost:3333/sessions', {
     method: 'POST',
     headers: {
