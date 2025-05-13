@@ -59,7 +59,6 @@
             <v-text-field
               v-model="clientData.telefone"
               label="Telefone"
-              v-mask="'(##) #####-####'"
             ></v-text-field>
           </v-form>
         </v-card-text>
@@ -87,48 +86,57 @@
   </v-container>
 </template>
 
-<script setup>
-import { ref, onMounted } from 'vue';
-import { toast } from 'vue3-toastify'; // Importe a função toast
-import 'vue3-toastify/dist/index.css'; // Importe os estilos CSS
-import { vMask } from 'vue-the-mask';
 
-const clients = ref([]);
+<script lang="ts" setup>
+import { ref, onMounted } from 'vue';
+import { toast } from 'vue3-toastify';
+import 'vue3-toastify/dist/index.css';
+import { fetchClients } from '@/api/fetch-client';
+
+interface Client {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+}
+
+const clients = ref<Client[]>([]);
 const headers = ref([
   { title: 'ID', key: 'id' },
-  { title: 'Nome', key: 'nome' },
+  { title: 'Nome', key: 'name' },
   { title: 'Email', key: 'email' },
-  { title: 'Telefone', key: 'telefone' },
+  { title: 'Telefone', key: 'phone' },
   { title: 'Ações', key: 'actions', sortable: false },
 ]);
 
 const isClientModalOpen = ref(false);
 const isDeleteConfirmationOpen = ref(false);
 
-const clientData = ref({ id: null, nome: '', email: '', telefone: '' });
-const editingClient = ref(null);
+const clientData = ref<Client>({ id: 0, nome: '', email: '', telefone: '' });
+const editingClient = ref<Client | null>(null);
 
-const deletingClient = ref(null);
+const deletingClient = ref<Client | null>(null);
 
 const isSaving = ref(false);
 const isDeleting = ref(false);
 
-const fetchClients = async () => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  clients.value = [
-    { id: 1, nome: 'João Silva', email: 'joao.silva@email.com', telefone: '(11) 98765-4321' },
-    { id: 2, nome: 'Maria Souza', email: 'maria.souza@email.com', telefone: '(21) 91234-5678' },
-    { id: 3, nome: 'Pedro Oliveira', email: 'pedro.oliveira@email.com', telefone: '(31) 99876-5432' },
-  ];
+const loadClients = async (page: number = 1) => {
+  try {
+    const response = await fetchClients(page); 
+    clients.value = response.clients;
+  } catch (error) {
+    console.error(error);
+    toast.error('Erro ao carregar os clientes.');
+  }
 };
 
 const openCreateModal = () => {
   editingClient.value = null;
-  clientData.value = { id: null, nome: '', email: '', telefone: '' };
+  clientData.value = { id: 0, nome: '', email: '', telefone: '' };
   isClientModalOpen.value = true;
 };
 
-const openEditModal = (client) => {
+const openEditModal = (client: Client) => {
   editingClient.value = client;
   clientData.value = { ...client };
   isClientModalOpen.value = true;
@@ -137,7 +145,7 @@ const openEditModal = (client) => {
 const closeClientModal = () => {
   isClientModalOpen.value = false;
   editingClient.value = null;
-  clientData.value = { id: null, nome: '', email: '', telefone: '' };
+  clientData.value = { id: 0, nome: '', email: '', telefone: '' };
 };
 
 const saveClient = async () => {
@@ -147,25 +155,25 @@ const saveClient = async () => {
   }
 
   isSaving.value = true;
-  await new Promise(resolve => setTimeout(resolve, 1000));
-
-  if (editingClient.value) {
-    const index = clients.value.findIndex(c => c.id === editingClient.value.id);
-    if (index !== -1) {
-      clients.value[index] = { ...clientData.value, id: editingClient.value.id };
-      toast.success(`Cliente "${clientData.value.nome}" atualizado com sucesso!`);
+  try {
+    if (editingClient.value) {
+      const index = clients.value.findIndex(c => c.id === editingClient.value.id);
+      if (index !== -1) {
+        clients.value[index] = { ...clientData.value, id: editingClient.value.id };
+        toast.success(`Cliente "${clientData.value.nome}" atualizado com sucesso!`);
+      }
+    } else {
+      const newId = clients.value.length > 0 ? Math.max(...clients.value.map(c => c.id)) + 1 : 1;
+      clients.value.push({ ...clientData.value, id: newId });
+      toast.success(`Cliente "${clientData.value.nome}" criado com sucesso!`);
     }
-  } else {
-    const newId = clients.value.length > 0 ? Math.max(...clients.value.map(c => c.id)) + 1 : 1;
-    clients.value.push({ ...clientData.value, id: newId });
-    toast.success(`Cliente "${clientData.value.nome}" criado com sucesso!`);
+  } finally {
+    closeClientModal();
+    isSaving.value = false;
   }
-
-  closeClientModal();
-  isSaving.value = false;
 };
 
-const openDeleteConfirmation = (client) => {
+const openDeleteConfirmation = (client: Client) => {
   deletingClient.value = client;
   isDeleteConfirmationOpen.value = true;
 };
@@ -179,20 +187,21 @@ const deleteClient = async () => {
   if (!deletingClient.value) return;
 
   isDeleting.value = true;
-  await new Promise(resolve => setTimeout(resolve, 1000));
-
-  clients.value = clients.value.filter(c => c.id !== deletingClient.value.id);
-  toast.success(`Cliente "${deletingClient.value.nome}" excluído com sucesso!`);
-
-  closeDeleteConfirmation();
-  isDeleting.value = false;
+  try {
+    clients.value = clients.value.filter(c => c.id !== deletingClient.value.id);
+    toast.success(`Cliente "${deletingClient.value.nome}" excluído com sucesso!`);
+  } finally {
+    closeDeleteConfirmation();
+    isDeleting.value = false;
+  }
 };
 
 onMounted(() => {
-  fetchClients();
+  loadClients();
 });
 
 definePageMeta({
   layout: 'system'
 });
+
 </script>
