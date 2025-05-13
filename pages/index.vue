@@ -64,38 +64,30 @@
 
 
 <script setup>
-import { ref } from 'vue';
-import { createClient } from '../api/creat-client';  // Importando a função para fazer a requisição
+import { ref } from 'vue'
+import { createClient } from '@/api/create-client'
 
-// Definição das variáveis para os dados do formulário
-const nomeImobiliaria = ref('');
-const cnpj = ref('');
-const endereco = ref('');
-const telefone = ref('');
-const email = ref('');
+const nomeImobiliaria = ref('')
+const cnpj = ref('')
+const endereco = ref('')
+const telefone = ref('')
+const email = ref('')
 
-// Função para enviar os dados para a API
+const router = useRouter()
+
 const cadastrarImobiliaria = async () => {
-  // Prepara os dados do formulário
-  const payload = {
-    name: nomeImobiliaria.value,
-    cnpj: cnpj.value,
-    address: endereco.value,
-    phone: telefone.value,
-    email: email.value,
-  };
-
   try {
-    // Chama a função createClient para enviar os dados
-    const response = await createClient(payload); 
+    await createClient({
+      name: nomeImobiliaria.value,
+      cnpj: cnpj.value,
+      address: endereco.value,
+      phone: telefone.value,
+      email: email.value,
+    })
 
-    // Exibe uma mensagem de sucesso caso o cadastro tenha sido realizado com sucesso
-    alert('Cadastro realizado com sucesso!');
-    console.log('Resposta do cadastro:', response);
-  } catch (error) {
-    // Em caso de erro, exibe a mensagem de erro
-    alert(`Erro: ${error.message}`);
-    console.error('Erro no cadastro:', error);
+    alert('Cadastro realizado com sucesso!')
+  } catch (err) {
+    alert(err.message)
   }
-};
+}
 </script>
