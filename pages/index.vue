@@ -21,6 +21,7 @@
                     label="CNPJ"
                     :rules="[rules.required, rules.cnpj]"
                     v-mask="'cpfcnpj'"
+                    maxlength="18"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6">
@@ -29,7 +30,8 @@
                     label="Telefone"
                     :rules="[rules.required, rules.telefone]"
                     v-mask="'(00) 00000-0000'"
-                  ></v-text-field>
+                    maxlength="15"
+                    ></v-text-field>
                 </v-col>
               </v-row>
 
@@ -60,15 +62,15 @@
       </v-col>
     </v-row>
   </v-container>
+    <v-snackbar v-model="snackbar.visible" :color="snackbar.color" :timeout="3000">
+    {{ snackbar.message }}
+  </v-snackbar>
 </template>
-
-
 
 
 <script setup>
 import { ref } from 'vue'
 import { createClient } from '@/api/create-client'
-import { useRouter } from 'vue-router'
 
 const nomeImobiliaria = ref('')
 const cnpj = ref('')
@@ -77,13 +79,24 @@ const telefone = ref('')
 const email = ref('')
 
 const formRef = ref(null)
-const router = useRouter()
+
+const snackbar = ref({
+  visible: false,
+  message: '',
+  color: 'success',
+})
 
 const rules = {
   required: v => !!v || 'Campo obrigatório',
   email: v => /.+@.+\..+/.test(v) || 'Email inválido',
-  cnpj: v => /^\d{2}\.?\d{3}\.?\d{3}\/?\d{4}-?\d{2}$/.test(v) || 'CNPJ inválido',
-  telefone: v => /^\(?\d{2}\)?[\s-]?\d{5}-?\d{4}$/.test(v) || 'Telefone inválido'
+  cnpj: v => {
+    const regex = /^\d{2}\.?\d{3}\.?\d{3}\/?\d{4}-?\d{2}$/;
+    return regex.test(v) || 'CNPJ inválido';
+  },
+  telefone: v => {
+    const regex = /^\(?\d{2}\)?[\s-]?\d{5}-?\d{4}$/;
+    return regex.test(v) || 'Telefone inválido';
+  }
 }
 
 const cadastrarImobiliaria = async () => {
@@ -99,9 +112,17 @@ const cadastrarImobiliaria = async () => {
       email: email.value,
     })
 
-    alert('Cadastro realizado com sucesso!')
+    snackbar.value = {
+      visible: true,
+      message: 'Cadastro realizado com sucesso!',
+      color: 'success',
+    }
   } catch (err) {
-    alert(err.message)
+    snackbar.value = {
+      visible: true,
+      message: err.message || 'Erro ao cadastrar!',
+      color: 'error',
+    }
   }
 }
 </script>
