@@ -12,7 +12,7 @@
                 v-model="nomeImobiliaria"
                 label="Nome da Imobiliária"
                 :rules="[rules.required]"
-              ></v-text-field>
+              />
 
               <v-row>
                 <v-col cols="12" sm="6">
@@ -22,7 +22,7 @@
                     :rules="[rules.required, rules.cnpj]"
                     v-mask="'cpfcnpj'"
                     maxlength="18"
-                  ></v-text-field>
+                  />
                 </v-col>
                 <v-col cols="12" sm="6">
                   <v-text-field
@@ -31,7 +31,7 @@
                     :rules="[rules.required, rules.telefone]"
                     v-mask="'(00) 00000-0000'"
                     maxlength="15"
-                    ></v-text-field>
+                  />
                 </v-col>
               </v-row>
 
@@ -39,14 +39,14 @@
                 v-model="endereco"
                 label="Endereço"
                 :rules="[rules.required]"
-              ></v-text-field>
+              />
 
               <v-text-field
                 v-model="email"
                 label="Email"
                 type="email"
                 :rules="[rules.required, rules.email]"
-              ></v-text-field>
+              />
 
               <v-btn
                 color="primary"
@@ -62,15 +62,14 @@
       </v-col>
     </v-row>
   </v-container>
-    <v-snackbar v-model="snackbar.visible" :color="snackbar.color" :timeout="3000">
-    {{ snackbar.message }}
-  </v-snackbar>
 </template>
 
-
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
+import { useToast } from 'vue-toastification'
 import { createClient } from '@/api/create-client'
+
+const toast = useToast()
 
 const nomeImobiliaria = ref('')
 const cnpj = ref('')
@@ -78,24 +77,18 @@ const endereco = ref('')
 const telefone = ref('')
 const email = ref('')
 
-const formRef = ref(null)
-
-const snackbar = ref({
-  visible: false,
-  message: '',
-  color: 'success',
-})
+const formRef = ref()
 
 const rules = {
-  required: v => !!v || 'Campo obrigatório',
-  email: v => /.+@.+\..+/.test(v) || 'Email inválido',
-  cnpj: v => {
-    const regex = /^\d{2}\.?\d{3}\.?\d{3}\/?\d{4}-?\d{2}$/;
-    return regex.test(v) || 'CNPJ inválido';
+  required: (v: string) => !!v || 'Campo obrigatório',
+  email: (v: string) => /.+@.+\..+/.test(v) || 'Email inválido',
+  cnpj: (v: string) => {
+    const regex = /^\d{2}\.?\d{3}\.?\d{3}\/?\d{4}-?\d{2}$/
+    return regex.test(v) || 'CNPJ inválido'
   },
-  telefone: v => {
-    const regex = /^\(?\d{2}\)?[\s-]?\d{5}-?\d{4}$/;
-    return regex.test(v) || 'Telefone inválido';
+  telefone: (v: string) => {
+    const regex = /^\(?\d{2}\)?[\s-]?\d{5}-?\d{4}$/
+    return regex.test(v) || 'Telefone inválido'
   }
 }
 
@@ -112,17 +105,9 @@ const cadastrarImobiliaria = async () => {
       email: email.value,
     })
 
-    snackbar.value = {
-      visible: true,
-      message: 'Cadastro realizado com sucesso!',
-      color: 'success',
-    }
-  } catch (err) {
-    snackbar.value = {
-      visible: true,
-      message: err.message || 'Erro ao cadastrar!',
-      color: 'error',
-    }
+    toast.success('Cadastro realizado com sucesso!')
+  } catch (err: any) {
+    toast.error(err.message || 'Erro ao cadastrar!')
   }
 }
 </script>
