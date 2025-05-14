@@ -1,6 +1,7 @@
 {
   "extends": "../.nuxt/tsconfig.server.json",
     "compilerOptions": {
+    "typeRoots": ["./types", "./node_modules/@types"],
     "target": "esnext",
     "module": "esnext",
     "moduleResolution": "node",
