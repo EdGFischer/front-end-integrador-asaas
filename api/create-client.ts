@@ -1,4 +1,3 @@
-// api/create-client.ts
 import axios from 'axios';
 
 interface CreateClientPayload {
