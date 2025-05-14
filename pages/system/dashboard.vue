@@ -14,18 +14,9 @@
     </v-row>
 
     <v-row class="mt-4">
-      <v-col cols="12" md="6">
+      <v-col cols="12">
         <v-card>
-          <v-card-title>Quantidade de Clientes por Tipo</v-card-title>
-          <v-card-text>
-            <PieChartReport :chart-data="clientTypeData" />
-          </v-card-text>
-        </v-card>
-      </v-col>
-
-      <v-col cols="12" md="6">
-        <v-card>
-          <v-card-title>Evolução de Novos Clientes (Últimos Meses)</v-card-title>
+          <v-card-title>Evolução de Novos Clientes (Últimos 5 Meses)</v-card-title>
           <v-card-text>
             <LineChartReport :chart-data="newClientsEvolutionData" />
           </v-card-text>
@@ -35,24 +26,63 @@
   </v-container>
 </template>
 
-<script setup>
-import { ref } from 'vue';
-import PieChartReport from '@/components/PieChartReport.vue';
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
+import { fetchDashboardClients } from '@/api/dashboard';
 import LineChartReport from '@/components/LineChartReport.vue';
+import { format, subMonths } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+
+const getLastFiveMonths = () => {
+  return Array.from({ length: 5 }, (_, i) => {
+    const date = subMonths(new Date(), 4 - i);
+    return format(date, 'MMM', { locale: ptBR });
+  });
+};
 
 const newClientsEvolutionData = ref({
-  labels: ['Ago', 'Set', 'Out', 'Nov', 'Dez', 'Jan'],
+  labels: [] as string[],
   datasets: [
     {
       label: 'Novos Clientes',
       borderColor: '#4CAF50',
-      data: [25, 30, 28, 35, 40, 45],
-      fill: false
-    }
-  ]
+      data: [] as number[],
+      fill: false,
+    },
+  ],
+});
+
+onMounted(async () => {
+  try {
+    const clients = await fetchDashboardClients();
+
+    const monthlyCounts: Record<string, number> = {};
+
+    const months = getLastFiveMonths();
+
+    months.forEach((month) => {
+      monthlyCounts[month] = 0;
+    });
+
+    clients.forEach((client) => {
+      const date = new Date(client.registrationDate);
+      const month = format(date, 'MMM', { locale: ptBR });
+
+      if (monthlyCounts[month] !== undefined) {
+        monthlyCounts[month]++;
+      }
+    });
+
+    newClientsEvolutionData.value.labels = months;
+    newClientsEvolutionData.value.datasets[0].data = months.map(
+      (month) => monthlyCounts[month]
+    );
+  } catch (error) {
+    console.error(error);
+  }
 });
 
 definePageMeta({
-  layout: 'system'
+  layout: 'system',
 });
 </script>
