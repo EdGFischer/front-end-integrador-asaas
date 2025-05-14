@@ -43,6 +43,11 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { loginApi } from '@/api/create-session';
 import { useCookie } from '#app';
+import { useToast } from 'vue-toastification'
+
+
+const toast = useToast()
+
 
 const email = ref('');
 const password = ref('');
@@ -55,10 +60,9 @@ const login = async () => {
     const token = useCookie('token'); 
     token.value = data.access_token;
 
-    router.push('system/dashboard');
-  } catch (error) {
-    console.error('Erro no login:', error.message);
-    alert('Email ou senha incorretos');
+    router.push('system/client');
+  } catch (error) {    
+    toast.error(error.message || 'Email ou senha incorretos')
   }
 };
 </script>
