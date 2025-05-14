@@ -46,11 +46,12 @@
 
 <script setup>
 import { useRouter } from 'vue-router';
+import Cookies from 'js-cookie';
 
 const router = useRouter();
 
 const logout = () => {
-  localStorage.removeItem('token');
+  Cookies.remove('token');
   router.push('/login');
 };
 </script>
