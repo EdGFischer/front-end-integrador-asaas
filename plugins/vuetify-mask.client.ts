@@ -37,8 +37,8 @@ function getMask(type: string | 'cpfcnpj') {
       dispatch(appended, dynamicMasked) {
         const number = (dynamicMasked.value + appended).replace(/\D/g, '');
         return number.length > 11
-          ? dynamicMasked.compiledMasks[1] // CNPJ
-          : dynamicMasked.compiledMasks[0]; // CPF
+          ? dynamicMasked.compiledMasks[1]
+          : dynamicMasked.compiledMasks[0];
       },
     };
   }

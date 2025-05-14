@@ -40,18 +40,6 @@ import { ref } from 'vue';
 import PieChartReport from '@/components/PieChartReport.vue';
 import LineChartReport from '@/components/LineChartReport.vue';
 
-// Dados de exemplo para o gráfico de pizza de tipos de clientes
-const clientTypeData = ref({
-  labels: ['Compradores', 'Locatários', 'Interessados'],
-  datasets: [
-    {
-      backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
-      data: [75, 50, 120]
-    }
-  ]
-});
-
-// Dados de exemplo para o gráfico de linha de evolução de novos clientes
 const newClientsEvolutionData = ref({
   labels: ['Ago', 'Set', 'Out', 'Nov', 'Dez', 'Jan'],
   datasets: [
