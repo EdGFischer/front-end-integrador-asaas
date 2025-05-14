@@ -60,6 +60,8 @@ const login = async () => {
     const token = useCookie('token'); 
     token.value = data.access_token;
 
+    await nextTick();
+
     router.push('system/client');
   } catch (error) {    
     toast.error(error.message || 'Email ou senha incorretos')
