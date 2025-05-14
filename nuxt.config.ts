@@ -12,7 +12,6 @@ export default defineNuxtConfig({
     transpile: ['vuetify'],
   },
   plugins: [
-    '~/plugins/vue-toaster',
     { src: '~/plugins/vuetify', mode: 'client' },
   ]
 })
