@@ -33,7 +33,7 @@
 
 Aplicação front-end desenvolvida em Nuxt.js. A interface permite cadastro, autenticação e controle completo dos clientes via dashboard.
 
-> 🔗 O projeto **back-end** está disponível em: [github.com/EdGFischer/api-integrador-asaas](https://github.com/EdGFischer/api-integrador-asaas)
+> 🔗 O projeto **back-end** está disponível em: [github.com/EdGFischer/api-integrador-asaas](https://github.com/EdGFischer/api_integrador_asaas)
 
 ---
 
